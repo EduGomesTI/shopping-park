@@ -1,0 +1,27 @@
+@startuml System_Context_Diagram
+
+!theme C4_sandstone from https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/themes
+
+!include <C4/C4_Container>
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/users.puml
+!include DEVICONS/dotnet.puml
+
+title System Context for Shopping Parking System
+
+Person(customer, "Shopping Customer", "A customer who wants to park his car", $sprite="users")
+Boundary(system_boundary, "Shopping Parking System"){
+    System(api, ".Net", "Provides all the functionality for customers to park their car", $sprite="dotnet")
+    SystemDb(db, "Microsoft SQL", "Stores information about parking tickets",$sprite="msql_server")
+}
+
+System_Ext(payment, "Payment System", "Payment system for parking tickets")
+
+Rel(customer, api, "Uses", "HTTPS")
+Rel_R(api, db, "Reads from and writes to", "Reads/Write")
+Rel(api, payment, "Uses", "HTTPS")
+
+@enduml

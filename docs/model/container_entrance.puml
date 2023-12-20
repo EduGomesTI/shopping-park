@@ -1,0 +1,29 @@
+@startuml Container_Entrance_Diagram
+
+!include <C4/C4_Container>
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/users.puml
+!include DEVICONS/dotnet.puml
+
+AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="micro service\neight sided")
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor=LightGreen, $fontColor="white")
+AddElementTag("message", $shape=HexagonShape(), $bgColor=LightBlue, $fontColor="white")
+
+title Container - Entrance
+
+Person(customer, "Shopping Customer", "A customer who wants to park his car", $sprite="users")
+
+Container(entrance, "Entrance", ".Net", ".Net API Service", $sprite="dotnet", $tags = "microservice")
+
+ContainerDb(database, "Database", "SQL Server", $sprite="msql_server", $tags = "storage")
+
+ContainerQueue(entrance_message, "Entrance Queue", "RabbitMQ", $sprite="rabbitmq", $tags = "message")
+
+Rel_D(customer, entrance, "Request to park car", "HTTP")
+Rel_L(entrance, database, "Save car information", "SQL")
+Rel_R(entrance, entrance_message, "Send car information to queue", "AMQP")
+
+@enduml

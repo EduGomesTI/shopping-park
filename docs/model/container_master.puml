@@ -1,0 +1,37 @@
+@startuml Container_Master_Diagram
+
+!include <C4/C4_Container>
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/users.puml
+!include DEVICONS/dotnet.puml
+
+AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white")
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor=LightGreen, $fontColor="white")
+AddElementTag("message", $shape=HexagonShape(), $bgColor=LightBlue, $fontColor="white")
+
+title Container - Master Microservice to Manage Parking Tickets
+
+Container(microService, "Master Microservice", "Microservice that manages the Parking System ", ".NET", $sprite="dotnet", $tags = "microService")
+
+ContainerDb(storage, "Storage", "Storage of the payment microservice", "SQL Server", $sprite="msql_server", $tags = "storage")
+
+ContainerQueue(message_entrance, "Message Queue", "Message queue for the entrance microservice", "RabbitMQ", $tags = "message")
+ContainerQueue(message_payment, "Message Queue", "Message queue for the payment microservice", "RabbitMQ", $tags = "message")
+ContainerQueue(message_exit, "Message Queue", "Message queue for the exit microservice", "RabbitMQ", $tags = "message")
+
+' System_Ext(master, "Master Microservice", ".Net", $sprite="dotnet")
+
+Rel_R(microService, storage, "Reads from and writes to", "SQL")
+Rel_U(message_entrance, microService, "Receive messages from", "RabbitMQ")
+BiRel_U(message_payment, microService, "Send/Receive messages", "RabbitMQ")
+Rel_D(microService, message_exit, "Send messages to", "RabbitMQ")
+
+
+
+
+
+
+@enduml

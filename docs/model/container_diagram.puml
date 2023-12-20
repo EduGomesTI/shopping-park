@@ -1,0 +1,69 @@
+@startuml Container_Context
+
+!theme C4_sandstone from https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/themes
+
+!include <C4/C4_Container>
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/users.puml
+!include DEVICONS/dotnet.puml
+
+AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="micro service\neight sided")
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor=LightGreen, $fontColor="white")
+AddElementTag("message", $shape=HexagonShape(), $bgColor=LightBlue, $fontColor="white")
+
+title Container Context for Shopping Parking System
+
+Person(customer, "Shopping Customer", "A customer who wants to park his car", $sprite="users")
+
+
+  Container_Boundary(entrance_boundary, "Entrance Service"){
+    Container(entrance, "Entrance", ".Net", ".Net API Service", $sprite="dotnet", $tags = "microservice")
+  }
+
+   Container_Boundary(payment_boundary, "Payment Service"){
+    Container(payment, "Payment", ".Net", ".Net API Service", $sprite="dotnet", $tags = "microservice")
+  }
+
+    Container_Boundary(exit_boundary, "Exit Service"){
+    Container(exit, "Exit", ".Net", ".Net API Service", $sprite="dotnet", $tags = "microservice")
+  }
+
+  Container_Boundary(master_boundary, "Master Service"){
+    Container(master, "Master", ".Net", ".Net API Service", $sprite="dotnet", $tags = "microservice")
+    ContainerDb(database, "Database", "SQL Server", $sprite="msql_server", $tags = "storage")
+  }
+
+  ContainerQueue(entrance_message, "Entrance Queue", "RabbitMQ", $sprite="rabbitmq", $tags = "message")
+  ContainerQueue(payment_message, "Payment Queue", "RabbitMQ", $sprite="rabbitmq", $tags = "message")
+  ContainerQueue(exit_message, "Exit Queue", "RabbitMQ", $sprite="rabbitmq", $tags = "message")
+
+System_Ext(ext_payment, "Payment System", "Payment system for parking tickets")
+
+Rel_D(customer, entrance, "", "HTTPS")
+Rel_D(customer, payment, "", "HTTPS")
+Rel_D(customer, exit, "", "HTTPS")
+
+Rel_D(master, database, "Reads from and writes to")
+
+Rel_D(payment, ext_payment, "", "HTTPS")
+
+Rel(entrance, entrance_message, "", "Queue")
+Rel(entrance_message, master, "", "Queue")
+
+BiRel(payment, payment_message, "", "Queue")
+BiRel(payment_message, master, "", "Queue")
+
+Rel_D(exit_message, exit, "", "Queue")
+Rel_U(master, exit_message, "", "Queue")
+
+
+Lay_L(entrance_boundary, payment_boundary)
+Lay_D(ext_payment, master_boundary)
+Lay_D(entrance_boundary, entrance_message)
+Lay_D(payment_boundary, payment_message)
+Lay_D(exit_boundary, exit_message)
+
+@enduml

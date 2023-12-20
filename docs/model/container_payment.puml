@@ -1,0 +1,34 @@
+@startuml Container_Payment_Diagram
+
+!include <C4/C4_Container>
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/users.puml
+!include DEVICONS/dotnet.puml
+
+AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white")
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor=LightGreen, $fontColor="white")
+AddElementTag("message", $shape=HexagonShape(), $bgColor=LightBlue, $fontColor="white")
+
+title Container - Payment
+
+Person(customer, "Shopping Customer", "A customer who wants to validate your ticket", $sprite="users")
+
+Container(microService, "Payment Microservice", "Microservice that validates the ticket", ".NET", $sprite="dotnet", $tags = "microService")
+
+ContainerDb(storage, "Storage", "Storage of the payment microservice", "SQL Server", $sprite="msql_server", $tags = "storage")
+
+ContainerQueue(message, "Message Queue", "Message queue for the payment microservice", "RabbitMQ", $tags = "message")
+
+System_Ext(payment_ext, "Payment System", "Payment system for parking tickets")
+
+Rel_D(customer, microService, "Validates ticket", "HTTP")
+Rel_R(microService, storage, "Stores payment", "SQL")
+BiRel_D(microService, message, "Sends/Receive payment", "AMQP")
+Rel_L(microService, payment_ext, "Sends payment", "HTTP")
+
+
+
+@enduml
